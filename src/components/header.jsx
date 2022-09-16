@@ -9,11 +9,12 @@ export class Header extends Component {
     // Todo Implement Later
     this.setState({ searchTerm: e.target.value });
   };
-  handleKeyPress = (e) => {
+  handleKeyPress = (e) => { 
     // Todo Implement Later
   };
   render() {
-    const { category } = this.props;
+    const { category,changeCategory } = this.props;
+    // console.log(this.props)
 
     return (
       <div className="my-4">
@@ -33,13 +34,19 @@ export class Header extends Component {
             Object.keys(newsCategory).map((item) => {
               if (category === newsCategory[item]) {
                 return (
-                  <button className="btn btn-sm btn-warning me-2 mb-2">
+                  <button
+                    onClick={() => changeCategory(newsCategory[item])}
+                    className="btn btn-sm btn-warning me-2 mb-2"
+                  >
                     {`#${newsCategory[item]}`}
                   </button>
                 );
               }
               return (
-                <button className="btn btn-sm btn-light me-2 mb-2">
+                <button
+                  onClick={() => changeCategory(newsCategory[item])}
+                  className="btn btn-sm btn-light me-2 mb-2"
+                >
                   {`#${newsCategory[item]}`}
                 </button>
               );

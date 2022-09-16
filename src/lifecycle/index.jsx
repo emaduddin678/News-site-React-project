@@ -12,7 +12,7 @@ class Lifecycle extends Component {
 
   componentDidMount() {
     console.log('componentdidMount Called');
-    console.log("Mounte " ,this.divRef)
+    console.log("Mounted " ,this.divRef)
     console.log(this.divRef.current)
   }
 
@@ -24,8 +24,7 @@ class Lifecycle extends Component {
 
   render() {
     console.log("Render Called");
-    console.log('Ref', this.divRef);
-    console.log(this.divRef);
+    console.log('Ref in render', this.divRef);
     return (
       <div ref={this.divRef}>
         <h3>React LifeCycle Methods</h3>
