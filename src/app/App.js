@@ -1,53 +1,96 @@
 import React from "react";
-import axios from "axios";
 import Header from "../components/header";
-import { newsCategory } from "../news";
+import News, { newsCategory } from "../news";
 import NewsList from "../components/newsList";
 import Pagination from "../components/pagination";
 import Loading from "../components/loading";
 // import Lifecycle from "../lifecycle";
 
+const news = new News(newsCategory.technology);
+
 class App extends React.Component {
   state = {
-    news: [],
-    category: newsCategory.technology,
-  };
-
-  changeCategory = (category) => {
-    console.log(category)
-    this.setState({ category });
+    data: {},
+    isLoading: true,
   };
 
   componentDidMount() {
-    const url = `${process.env.REACT_APP_NEWS_URL}?apiKey=${process.env.REACT_APP_NEWS_API_KEY}&category=${this.state.category}&pageSize=5`;
-    axios
-      .get(url)
-      .then((response) => {
-        this.setState({
-          news: response.data.articles,
-        });
+    news
+      .getNews()
+      .then((data) => {
+        this.setState({ data, isLoading: false });
       })
       .catch((e) => {
         console.log(e);
+        alert("Something went wrong");
+        this.setState({ isLoading: false });
       });
   }
-  componentDidUpdate(prevProps, prevState) {
-    if(prevState.category !== this.state.category){
-    const url = `${process.env.REACT_APP_NEWS_URL}?apiKey=${process.env.REACT_APP_NEWS_API_KEY}&category=${this.state.category}&pageSize=5`;
-    axios
-      .get(url)
-      .then((response) => {
-        this.setState({
-          news: response.data.articles,
-        });
+
+  next = () => {
+    if (this.state.data.isNext) {
+      this.setState({ isLoading: true });
+    }
+    news
+      .next()
+      .then((data) => {
+        this.setState({ data, isLoading: false });
       })
       .catch((e) => {
         console.log(e);
+        alert("Something Went Wrong");
+        this.setState({ isLoading: false });
       });
+  };
+
+  prev = () => {
+    if (this.state.data.isPrevious) {
+      this.setState({ isLoading: true });
     }
+    news
+      .prev()
+      .then((data) => {
+        this.setState({ data, isLoading: false });
+      })
+      .catch((e) => {
+        console.log(e);
+        alert("Something Went Wrong");
+        this.setState({ isLoading: false });
+      });
+  };
+
+  handlePageChange = value => {
+    this.setState({
+      data: {
+        ...this.state.data,
+        currentPage: Number.parseInt(value)
+      }
+    })
+  };
+
+  goToPage =() => {
+    this.setState({isLoading: true});
+    news.setCurrentPage(this.state.data.currentPage)
+    .then(data => {
+      this.setState({data, isLoading: false})
+    })
+    .catch(e => {
+      console.log(e);
+      alert("Something Went Wrong");
+      this.setState({ isLoading: false });
+    })
   }
 
   render() {
+    const {
+      article,
+      isPrevious,
+      isNext,
+      category,
+      totalResults,
+      currentPage,
+      totalPage,
+    } = this.state.data;
     return (
       <div className="container">
         <div className="row">
@@ -62,9 +105,23 @@ class App extends React.Component {
                 {1} page of {100}
               </p>
             </div>
-            <NewsList news={this.state.news} />
-            <Pagination />
-            <Loading />
+            {this.state.isLoading ? (
+              <Loading />
+            ) : (
+              <div>
+                <NewsList news={this.state.data.article} />
+                <Pagination
+                  next={this.next}
+                  prev={this.prev}
+                  isPrevious={isPrevious}
+                  isNext={isNext}
+                  totalPage={totalPage}
+                  currentPage={currentPage}
+                  handlePageChange={this.handlePageChange}
+                  goToPage={this.goToPage}
+                />
+              </div>
+            )}
 
             {/*Todo remove this code */}
             {/* <Lifecycle /> */}
